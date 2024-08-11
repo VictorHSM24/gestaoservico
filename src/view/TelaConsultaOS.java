@@ -1,21 +1,82 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JInternalFrame.java to edit this template
- */
 package view;
 
-/**
- *
- * @author clebe
- */
+import controller.OsDAO;
+import model.Os;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 public class TelaConsultaOS extends javax.swing.JInternalFrame {
 
+    private OsDAO osDAO;
+    
     /**
      * Creates new form ConsultaOS
      */
     public TelaConsultaOS() {
         initComponents();
+        osDAO = new OsDAO();
+        jTextField1.addActionListener(e -> buscarPorId());
+        jTextField2.addActionListener(e -> buscarPorNome());
     }
+    
+    private void buscarPorNome() {
+        String nomeCliente = jTextField2.getText();
+        try {
+            ArrayList<Os> osList = osDAO.buscarPorNomeCliente(nomeCliente); // Adicione esse método no OsDAO
+            DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+            model.setRowCount(0); // Limpa a tabela existente
+
+            for (Os os : osList) {
+                model.addRow(new Object[]{
+                    os.getOs(),
+                    os.getDataOs(),
+                    os.getTipo(),
+                    os.getSituacao(),
+                    os.getEquipamento(),
+                    os.getDefeito(),
+                    os.getServico(),
+                    os.getTecnico(),
+                    os.getValor(),
+                    os.getCliente().getId()
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao buscar por nome: " + e.getMessage());
+        }
+    }
+
+    private void buscarPorId() {
+        try {
+            int idOs = Integer.parseInt(jTextField1.getText());
+            Os os = osDAO.consultarOS(idOs); // Adapte esse método no OsDAO se necessário
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0); // Limpa a tabela existente
+
+            if (os != null) {
+                model.addRow(new Object[]{
+                    os.getOs(),
+                    os.getDataOs(),
+                    os.getTipo(),
+                    os.getSituacao(),
+                    os.getEquipamento(),
+                    os.getDefeito(),
+                    os.getServico(),
+                    os.getTecnico(),
+                    os.getValor(),
+                    os.getCliente().getId()
+                });
+            } else {
+                JOptionPane.showMessageDialog(null, "Ordem de Serviço não encontrada!");
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "ID inválido");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao buscar por ID: " + e.getMessage());
+        }
+    }
+
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -48,7 +109,7 @@ public class TelaConsultaOS extends javax.swing.JInternalFrame {
                 {null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4", "Título 5", "Título 6", "Título 7", "Título 8", "Título 9", "Título 10"
+                "ID", "Data de emissão", "Tipo", "Status", "Equipamento", "Defeito", "Serviço", "Técnico", "Valor total", "ID cliente"
             }
         ));
         jScrollPane2.setViewportView(jTable2);
@@ -98,7 +159,7 @@ public class TelaConsultaOS extends javax.swing.JInternalFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "ID", "Data de emissão", "Tipo", "Status"
             }
         ));
         jScrollPane1.setViewportView(jTable1);

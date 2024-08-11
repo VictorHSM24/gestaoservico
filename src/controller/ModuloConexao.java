@@ -20,9 +20,9 @@ public class ModuloConexao {
         //a linha abaixo "chama" o driver
         String driver = "com.mysql.cj.jdbc.Driver";
         //Armazenando informações referente ao banco
-        String url = "jdbc:mysql://localhost:3306/tads241";//?useTimeZone=true&serverTimezone=UTC"; 
+        String url = "jdbc:mysql://localhost:3306/dbtads3";//?useTimeZone=true&serverTimezone=UTC"; 
         String user = "root";
-        String password = "IFROOcrxi18#";
+        String password = "";
         try {
             Class.forName(driver);
             conexao = DriverManager.getConnection(url, user, password);

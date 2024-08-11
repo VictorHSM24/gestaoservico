@@ -35,6 +35,64 @@ public class OsDAO {
     String editarOS = "update tbos set tipo=?,situacao=?,equipamento=?,defeito=?,servico=?,tecnico=?,valor=? where os=?";
     String excluirOS = "delete from tbos where os=?";
 
+    public ArrayList<Os> buscarPorNomeCliente(String nomeCliente) {
+        ArrayList<Os> osList = new ArrayList<>();
+        String sql = "SELECT tbos.os, tbos.data_os, tbclientes.idcli, tbclientes.nomecli, tbos.tipo, tbos.situacao, tbos.equipamento, tbos.defeito, tbos.servico, tbos.tecnico, tbos.valor "
+                + "FROM tbos "
+                + "INNER JOIN tbclientes ON tbos.idcli = tbclientes.idcli "
+                + "WHERE tbclientes.nomecli LIKE ? OR tbos.os = ?";
+        try {
+            conexao = ModuloConexao.conectar();
+            ps = conexao.prepareStatement(sql);
+            ps.setString(1, "%" + nomeCliente + "%");
+            try {
+                int osId = Integer.parseInt(nomeCliente);
+                ps.setInt(2, osId);
+            } catch (NumberFormatException e) {
+                ps.setInt(2, 0);
+            }
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Os os = new Os();
+                os.setOs(rs.getInt("os"));
+                os.setDataOs(rs.getDate("data_os"));
+                os.setTipo(rs.getString("tipo"));
+                os.setSituacao(rs.getString("situacao"));
+                os.setEquipamento(rs.getString("equipamento"));
+                os.setDefeito(rs.getString("defeito"));
+                os.setServico(rs.getString("servico"));
+                os.setTecnico(rs.getString("tecnico"));
+                os.setValor(rs.getDouble("valor"));
+
+                Cliente cliente = new Cliente();
+                cliente.setId(rs.getInt("idcli"));
+                cliente.setNome(rs.getString("nomecli"));
+                os.setCliente(cliente);
+
+                osList.add(os);
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conexao != null) {
+                    conexao.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return osList;
+    }
+
     /**
      * Método responsável pela emissão de uma Ordem de Serviço
      */
@@ -95,13 +153,11 @@ public class OsDAO {
                 cliente.setId(rs.getInt(10));
                 obj.setCliente(cliente);
 
-             return obj;
-            }
-            
-            else{
+                return obj;
+            } else {
                 JOptionPane.showMessageDialog(null, "Ordem de Serviço não encontrada!");
             }
-           
+
         } catch (SQLSyntaxErrorException e) {
             JOptionPane.showMessageDialog(null, "OS Inválida");
         } catch (HeadlessException | SQLException e) {
@@ -174,24 +230,23 @@ public class OsDAO {
                 JOptionPane.showMessageDialog(null, ex);
             }
         }
-        
+
     }
 
     /**
      * Método responsável pela exclusão de uma Ordem de Serviço
      */
     public void excluirOs(Os obj) {
-        
+
         try {
-        conexao = ModuloConexao.conectar();
-        ps = conexao.prepareStatement(excluirOS);
-        
-        ps.setInt(1, obj.getOs());
-        
-        ps.executeUpdate();
-        
-        
-        JOptionPane.showMessageDialog(null, "OS excluída com sucesso");
+            conexao = ModuloConexao.conectar();
+            ps = conexao.prepareStatement(excluirOS);
+
+            ps.setInt(1, obj.getOs());
+
+            ps.executeUpdate();
+
+            JOptionPane.showMessageDialog(null, "OS excluída com sucesso");
         } catch (HeadlessException | SQLException e) {
             JOptionPane.showMessageDialog(null, e);
         } finally {
